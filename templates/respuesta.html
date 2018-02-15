@@ -1,0 +1,30 @@
+<form data-ruta="Irac" method="POST" enctype="multipart/form-data" id="request-form">
+	<div class="row row-form">
+		 <div class="col-lg-5">
+        <label>Prioridad</label>
+        <select class="form-control" name="idTipoPrioridad" required>
+          <option value="">Seleccione una Opcion</option>
+          <option value="NORMAL">Normal</option>
+          <option value="URGENTE">Urgente</option>
+        </select>
+      </div>
+      
+      </div>
+
+      <div class="row row-form">
+        <div class="col-lg-11">
+          <label>Anexar Documento</label>
+          <input type="file" name="file" class="form-control">
+        </div>
+      </div>
+
+      <div class="row row-form">
+        <div class="col-lg-11">
+            <label>Comentario</label>
+            <textarea placeholder="Comentario" class="form-control" name="comentario"></textarea>
+        </div>
+	</div>
+  <input type="hidden" name="idEstadoTurnado" value="RESPUESTA">
+  <input type="hidden" name="idVolante" value=":idVolante:">
+  <input type="hidden" name="idUsrReceptor" value=":usuario:">
+</form>

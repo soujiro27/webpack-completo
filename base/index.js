@@ -1,5 +1,6 @@
 const modal = require('./modals')
 const m = new modal()
+import {datepicker} from 'jquery-ui/ui/widgets/datepicker'
 
 module.exports = class Base {
 
@@ -24,6 +25,12 @@ module.exports = class Base {
                 let html = require('./../templates/order.html')
                 m.order(ruta,html)
             })
+        }
+
+        load_date_inputs(){
+
+            $('input.fechaInput').datepicker({ dateFormat: "yy-mm-dd" });
+
         }
 
         load_update_form(){
@@ -80,6 +87,16 @@ module.exports = class Base {
                 m.success(ruta)
             }
         }
+
+        async new_insert_with_file(datos,ruta){
+            let res = await this.send_data_insert_with_file(datos,ruta)
+            if(res[0].campo != 'success'){
+                let table = this.construct_table_errors(res)
+                m.errors(table)
+            } else {
+                m.success(ruta)
+            }
+        }
     
         send_data_insert_without_file(datos,ruta) {
             let prom = new Promise(resolve =>{
@@ -89,6 +106,25 @@ module.exports = class Base {
                     success:function(res) {
                         resolve(JSON.parse(res))
                     }
+                })
+            })
+    
+            return prom
+        }
+
+
+        send_data_insert_with_file(datos,ruta) {
+            let prom = new Promise(resolve =>{
+                $.post({
+                    url:`/SIA/juridico/${ruta}/create`,
+                    data:datos,
+                    success:function(res) {
+                        resolve(JSON.parse(res))
+                    },
+                    cache: false,
+    			    contentType: false,
+    			    processData: false,
+    			    dataType: "html",
                 })
             })
     

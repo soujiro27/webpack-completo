@@ -1,54 +1,39 @@
-import {validate} from 'jquery-validation'
+import validate from 'jquery-validation'
 const base = require('./../../../base/index')
 const b = new base()
 module.exports = class {
 
     validate_insert_form(){
-        $('form#insert-subDocumentos').validate({
+        $('form#insert-acciones').validate({
             rules:{
-                documento:{required:true},
                 nombre:{
                     required:true,
                     maxlength:50
-                },
-                auditoria:{
-                    required:true,
-                    maxlength:2
                 }
             },
             messages:{
-                documento:{
-                    required:'El Campo es Obligatorio'
-                },
                 nombre:{
                     required:'El Campo es Obligatorio',
                     maxlength:'Maximo 50 Caracteres'
-                },
-                auditoria:{
-                    required:'El campo es Obligatorio',
-                    maxlength:'Valor Incorrecto'
                 }
             },
             submitHandler:function(){
-                let formData = $('form#insert-subDocumentos').serializeArray()
-                b.new_insert(formData,'SubTiposDocumentos')
+
+                let formData = $('form#insert-acciones').serializeArray()
+                b.new_insert(formData,'Acciones')
             },
             errorClass:'is-invalid'
+
         })
     }
 
     validate_update_form(){
 
-        $('form#update-subDocumentos').validate({
+        $('form#update-acciones').validate({
             rules:{
-                documento:{required:true},
                 nombre:{
                     required:true,
                     maxlength:50
-                },
-                auditoria:{
-                    required:true,
-                    maxlength:2
                 },
                 estatus:{
                     required:true,
@@ -56,16 +41,9 @@ module.exports = class {
                 }
             },
             messages:{
-                documento:{
-                    required:'El Campo es Obligatorio'
-                },
                 nombre:{
                     required:'El Campo es Obligatorio',
                     maxlength:'Maximo 50 Caracteres'
-                },
-                auditoria:{
-                    required:'El Campo es Obligatorio',
-                    maxlength:'Valor Incorrecto'
                 },
                 estatus:{
                     required:'El Campo es Obligatorio',
@@ -73,11 +51,12 @@ module.exports = class {
                 }
             },
             submitHandler:function(){
-                let formData = $('form#update-subDocumentos').serializeArray()
-                b.new_update(formData,'SubTiposDocumentos')
+
+                let formData = $('form#update-acciones').serializeArray()
+                b.new_update(formData,'Acciones')
             },
             errorClass:'is-invalid'
+
         })
     }
-
 }
