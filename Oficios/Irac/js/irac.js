@@ -4,16 +4,6 @@ const m = new modals()
 
 module.exports= class {
 
-    load_form_observaciones(){
-        
-        $('button#add-btn-observaciones').click(function(){
-            $('table').toggle()
-            $('form').toggle()
-            $(this).hide()
-        })
-    }
-
-
     load_update_form_observaciones(){
 
         $('table#observaciones tbody tr').click(function(){
@@ -66,27 +56,27 @@ module.exports= class {
                 let texto = CKEDITOR.instances['ckeditor'].getData()
                 let formData = $('form#Observaciones-insert').serializeArray()
                 formData[3].value=texto
-                self.new_insert(formData,'Observaciones',formData[0].value)
+                self.new_insert_observacion(formData,'Irac',formData[0].value)
             },
             errorClass:'is-invalid'
         })
     }
 
-    async new_insert(datos,ruta,idVolante){
+    async new_insert_observacion(datos,ruta,idVolante){
         
-        let res = await this.send_data_insert_without_file(datos,ruta)
+        let res = await this.send_data_insert_observaciones(datos,ruta)
         if(res[0].campo != 'success'){
             let table = this.construct_table_errors(res)
             m.errors(table)
         } else {
-            m.success(ruta,idVolante)
+            m.success_observacion(ruta,idVolante)
         }
     }
 
-    send_data_insert_without_file(datos,ruta) {
+    send_data_insert_observaciones(datos,ruta) {
         let prom = new Promise(resolve =>{
             $.post({
-                url:`/SIA/juridico/${ruta}/create`,
+                url:`/SIA/juridico/${ruta}/Observaciones/create`,
                 data:datos,
                 success:function(res) {
                     resolve(JSON.parse(res))
@@ -140,27 +130,27 @@ module.exports= class {
                 let formData = $('form#Observaciones-update').serializeArray()
                 formData[4].value=texto
                 let idVolante = $('a#add-btn-observaciones').data('volante')
-                self.new_update(formData,'Observaciones',idVolante)
+                self.new_update_observacion(formData,'Irac',idVolante)
             },
             errorClass:'is-invalid'
         })
     }
 
-    async new_update(datos,ruta,idVolante){
-        let res = await this.update_data(datos,ruta)
+    async new_update_observacion(datos,ruta,idVolante){
+        let res = await this.update_observaciones(datos,ruta)
         if(res[0].campo != 'success'){
             let table = this.construct_table_errors(res)
             m.errors(table)
         } else {
-            m.success_update(ruta,idVolante)
+            m.success_update_observacion(ruta,idVolante)
         }	
     }
 
 
-    update_data(datos,ruta){
+    update_observaciones(datos,ruta){
         let promesa = new Promise(resolve =>{
             $.post({
-                url:`/SIA/juridico/${ruta}/update`,
+                url:`/SIA/juridico/${ruta}/observaciones/update`,
                 data:datos,
                 success:function(res){
                     resolve(JSON.parse(res))
@@ -197,7 +187,6 @@ module.exports= class {
 
     async modal_puestos_juridico() {
         
-        console.table(datos)
         let datos = await this.load_puestos_juridico()
         let table = this.construct_table_puestos_juridico(datos)
         m.puestos_juridico(table)
@@ -226,7 +215,7 @@ module.exports= class {
 
         for(let x in datos){
             tr += `<tr>
-                    <td><input type="radio" name="puestos" value="${datos[x].idPuestoJuridico}"></td>
+                    <td><input type="checkbox" name="puestos" value="${datos[x].idPuestoJuridico}"></td>
                     <td>${datos[x].saludo} ${datos[x].nombre} ${datos[x].paterno} ${datos[x].materno} </td>
                     <td>${datos[x].puesto}</td>
                 </tr>`
@@ -237,6 +226,72 @@ module.exports= class {
         return table
 
     }
+
+    validate_insert_cedula(){
+
+        let self = this
+
+        $('form#insert-cedula-irac').validate({
+
+            rules:{
+                siglas:{
+                    required:true,
+                    maxlength:50
+                },
+                fOficio:{required:true},
+                numFolio:{
+                    required:true,
+                    maxlength:20
+                }
+            },
+            messages:{
+                siglas:{
+                    required:'El Campo es Obligatorio',
+                    maxlength:'Maximo 50 Caracteres'
+                },
+                fOficio:{
+                    required:'El Campo es Obligatorio'
+                },
+                numFolio:{
+                    required:'El Campo es Obligatorio',
+                    maxlength:'Maximo 50 Caracteres'
+                }
+            },
+            submitHandler:function(form){
+
+                let datos = $('form#insert-cedula-irac').serializeArray()
+                let idVolante = datos[0].value
+                self.new_insert_cedula(datos,'Irac',idVolante)
+            },
+            errorClass:'is-invalid'
+        })
+    }
     
+    async new_insert_cedula(datos,ruta,idVolante){
+        
+        let res = await this.send_data_insert_cedula(datos,ruta)
+        if(res[0].campo != 'success'){
+            let table = this.construct_table_errors(res)
+            m.errors(table)
+        } else {
+            m.success_cedula(ruta,idVolante)
+        }
+    }
+
+
+    send_data_insert_cedula(datos,ruta) {
+        let prom = new Promise(resolve =>{
+            $.post({
+                url:`/SIA/juridico/${ruta}/cedula/create`,
+                data:datos,
+                success:function(res) {
+                    resolve(JSON.parse(res))
+                }
+            })
+        })
+
+        return prom
+    }
+
 
 }

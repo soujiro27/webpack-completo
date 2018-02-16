@@ -19,7 +19,7 @@ module.exports = class {
             })	
         }
     
-        success(ruta,idVolante){
+        success_observacion(ruta,idVolante){
             $.confirm({
                 title: 'Tu Registro se ha almacenado Correctamente',
                 content : '¿ Deseas agregar otro registro?',
@@ -47,7 +47,7 @@ module.exports = class {
         }
     
     
-        success_update(ruta,idVolante){
+        success_update_observacion(ruta,idVolante){
             $.confirm({
             title: 'Tu Registro se ha Actualizado Correctamente',
                 content : '',
@@ -60,7 +60,7 @@ module.exports = class {
                         text:'Aceptar',
                         btnClass:'btn-primary',
                         action:function(){
-                            location.href = `/SIA/juridico/Irac/Observaciones/${idVolante}`
+                            location.href = `/SIA/juridico/${ruta}/Observaciones/${idVolante}`
                         }
                     }
                 }
@@ -79,11 +79,45 @@ module.exports = class {
                 buttons:{
                     confirm:{
                         text:'Aceptar',
-                        btnClass:'btn-primary'
+                        btnClass:'btn-primary',
+                        action:function(){
+                            
+                            let puestos = []
+
+                            $("input:checkbox:checked").each(function() {
+                                
+                                puestos.push($(this).val())
+                            });
+
+                            $('input#idPuestosJuridico').val(puestos)
+
+                        }
                     }
                 }
             })	
         }
     
+        success_cedula(ruta,idVolante){
+
+            $.confirm({
+                title: 'La Cedula se ha almacenado Correctamente',
+                content : '',
+                icon:'fa fa-check-circle',
+                type:'green',
+                columnClass: 'col-md-8 col-md-offset-1',
+                draggable:false,
+                buttons:{
+                    confirm:{
+                        text:'SI',
+                        btnClass:'btn-primary',
+                        action:function(){
+                            location.href = `/SIA/juridico/${ruta}`
+                        }
+                    }
+                }
+            })
+        }
 
 }
+
+
