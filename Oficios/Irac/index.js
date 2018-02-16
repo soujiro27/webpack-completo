@@ -19,3 +19,7 @@ bo.carga_datos_turnado()
 bo.load_modal_request()
 
 i.validate_insert_observaciones()
+i.load_form_observaciones()
+i.load_update_form_observaciones()
+i.validate_update_observaciones()
+i.load_puestos_cedula()
