@@ -1,5 +1,5 @@
 const base = require('./../../base/index')
-const irac = require('./js/irac')
+const irac = require('./js/ifa')
 const baseOficios = require('./../base')
 
 
@@ -23,5 +23,6 @@ i.validate_insert_observaciones()
 i.load_update_form_observaciones()
 i.validate_update_observaciones()
 i.load_puestos_cedula()
+i.load_textos_cedula()
 i.validate_insert_cedula()
 i.validate_update_cedula()

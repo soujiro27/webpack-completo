@@ -1,5 +1,5 @@
 import {validate} from 'jquery-validation'
-const modals = require('./modals')
+const modals = require('./../../Irac/js/modals')
 const m = new modals()
 
 module.exports= class {
@@ -9,7 +9,7 @@ module.exports= class {
         $('table#observaciones tbody tr').click(function(){
 
             let id = $(this).data('id')
-            location.href = `/SIA/juridico/Irac/update/observaciones/${id}`
+            location.href = `/SIA/juridico/Ifa/update/observaciones/${id}`
 
         })
     }
@@ -56,7 +56,7 @@ module.exports= class {
                 let texto = CKEDITOR.instances['ckeditor'].getData()
                 let formData = $('form#Observaciones-insert').serializeArray()
                 formData[3].value=texto
-                self.new_insert_observacion(formData,'Irac',formData[0].value)
+                self.new_insert_observacion(formData,'Ifa',formData[0].value)
             },
             errorClass:'is-invalid'
         })
@@ -130,7 +130,7 @@ module.exports= class {
                 let formData = $('form#Observaciones-update').serializeArray()
                 formData[4].value=texto
                 let idVolante = $('a#add-btn-observaciones').data('volante')
-                self.new_update_observacion(formData,'Irac',idVolante)
+                self.new_update_observacion(formData,'Ifa',idVolante)
             },
             errorClass:'is-invalid'
         })
@@ -227,6 +227,62 @@ module.exports= class {
 
     }
 
+
+    load_textos_cedula(){
+
+        let self = this
+        
+        $('button#modalTextos').click(function(e){
+            e.preventDefault()
+            self.modal_textos_promocion()
+        })
+    }
+
+
+    async modal_textos_promocion() {
+        
+        let datos = await this.load_textos_promocion()
+        let table = this.construct_table_textos(datos)
+        m.textos_promocion_cedula_ifa(table)
+        
+
+
+    }
+
+    load_textos_promocion(){
+
+        let promesa = new Promise(resolve =>{
+            $.get({
+                url:`/SIA/juridico/api/promocionAcciones`,
+                success:function(res){
+                    resolve(JSON.parse(res))
+                }
+            })
+        })
+        return promesa
+    }
+
+    construct_table_textos(datos){
+
+        let html = require('./../../../templates/promocion_acciones.html')
+        let tr = ''
+
+        for(let x in datos){
+            tr += `<tr>
+                    <td><input type="radio" name="puestos" value="${datos[x].idDocumentoTexto}"></td>
+                    <td>${datos[x].texto} </td>
+                </tr>`
+        }
+
+        let table = html.replace(':body:',tr)
+
+        return table
+
+    }
+
+
+
+
     validate_insert_cedula(){
 
         let self = this
@@ -261,7 +317,7 @@ module.exports= class {
 
                 let datos = $('form#insert-cedula-irac').serializeArray()
                 let idVolante = datos[0].value
-                self.new_insert_cedula(datos,'Irac',idVolante)
+                self.new_insert_cedula(datos,'Ifa',idVolante)
             },
             errorClass:'is-invalid'
         })
@@ -330,7 +386,7 @@ module.exports= class {
             submitHandler:function(form){
 
                 let datos = $('form#update-cedula-irac').serializeArray()
-                self.new_update_cedula(datos,'Irac',datos[0].value)
+                self.new_update_cedula(datos,'Ifa',datos[0].value)
 
             },
             errorClass:'is-invalid'

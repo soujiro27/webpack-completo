@@ -1,10 +1,10 @@
 const base = require('./../../base/index')
-const irac = require('./js/irac')
+const confronta = require('./js/confronta')
 const baseOficios = require('./../base')
 
 
 const b = new base()
-const i = new irac()
+const c = new confronta()
 const bo = new baseOficios()
 
 b.cancel()
@@ -19,9 +19,3 @@ bo.form_submit()
 bo.carga_datos_turnado()
 bo.load_modal_request()
 
-i.validate_insert_observaciones()
-i.load_update_form_observaciones()
-i.validate_update_observaciones()
-i.load_puestos_cedula()
-i.validate_insert_cedula()
-i.validate_update_cedula()
