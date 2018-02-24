@@ -1,11 +1,10 @@
 const base = require('./../../base/index')
-const confronta = require('./js/confronta')
 const baseOficios = require('./../base')
-
+const diversos = require('./js/Diversos')
 
 const b = new base()
-const c = new confronta()
 const bo = new baseOficios()
+const d = new diversos()
 
 b.cancel()
 b.logout()
@@ -19,6 +18,9 @@ bo.form_submit()
 bo.carga_datos_turnado()
 bo.load_modal_request()
 
-c.validate_form_insert()
-c.validate_form_update_cedula()
+d.load_modal_internos()
+d.load_modal_externos()
+d.validate_form_insert_cedula()
+d.validate_form_update_cedula()
+
 

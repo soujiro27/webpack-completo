@@ -15,11 +15,25 @@ module.exports = class Asignacion extends modals{
     menu_oficios(){
         
         $('button#menu-oficios').click(()=>{
-            $('div.menu-oficios').toggle('slow')
+            $('div.menu-oficios').toggle('fast')
         })
-    }
+	}
+	
+	construct_table_errors(datos) {
+        //construye la lista de errores
+            let ul = ''
+    
+            $.each(datos, function(index, val) {
+                 ul += `<ul>
+                         <li><strong>Campo:</strong> ${datos[index].campo}</li>
+                         <li><strong>Error:</strong> ${datos[index].message}</li>
+                         </ul>`
+            })	
+            
+            return ul
+        }
 
-
+/*--------------- Turnados y Documentos -----------------*/
     form_submit(){
 		let self = this
 		let ruta = $('form#asignacion').data('ruta')
@@ -107,7 +121,7 @@ module.exports = class Asignacion extends modals{
 
 	construct_tables_documentos(datos) {
 
-		let box_html = require('./../templates/respuestas-box.html')
+		let box_html = require('./../templates/respuestas-table.html')
 		let html = ''
 		let idUsuario = $('div#datos-turnado').data('idusuario')
 
@@ -122,37 +136,61 @@ module.exports = class Asignacion extends modals{
 			let file
 
 			if(idUsuario == datos[x].usrAlta){
-				icon = 'fa fa-arrow-circle-down blue'
+				icon = '<img src="/SIA/hibrido/public/img/002-email.png" />'
 			} else {
 
-				icon = 'fa fa-arrow-circle-up red'
+				icon = '<img src="/SIA/hibrido/public/img/001-email-1.png" />'
 			}
 
 			if(datos[x].archivoFinal == null){
 
-				file = `<i class="fa fa-times-circle"></i>`
+				file = `Sin Archivo`
 
 			} else {
 
+                let archivo = datos[x].archivoFinal
+                let extension = archivo.split('.')
+                let file_icon
+                if(extension[1] == 'xlsx'  || extension[1] == 'xls' ){
+
+                    file_icon = '005-excel.png'
+
+                } else if (extension[1] == 'docx'  || extension[1] == 'doc'  ){
+
+                    file_icon = '004-word.png'
+
+                } else if( extension[1] == 'pdf' ){
+
+                    file_icon = '003-pdf.png'
+
+                } else if( extension[1] == 'jpg'  ){
+
+                    file_icon = '001-jpg.png'
+                }
+
+
+
 				file = `<a  target="_blank" href="/SIA/hibrido/files/${datos[x].idVolante}/Internos/${datos[x].archivoFinal}">
-						<i class="fa fa-file"></i>
+						<img src="/SIA/hibrido/public/img/${file_icon}">
 						</a>`
-			}
+            }
+            
+            
+            
 
-			
-
-			html += box_html
-			.replace(':icon:',icon)
-			.replace(':prioridad:',datos[x].idTipoPrioridad)
-			.replace(':nombre:',nombre)
-			.replace(':fecha:',fecha)
-			.replace(':hora:',hora)
-			.replace(':comentario:',comentario.toUpperCase())
-			.replace(':archivo:',file) 
-				
+            html += `<tr>
+                        <td>${icon}</td>
+                        <td>${nombre}</td>
+                        <td>${fecha}</td>
+                        <td>${hora}</td>
+                        <td>${comentario.toUpperCase()}</td>
+                        <td>${file}</td>
+                    </tr>`
 		}
 
-		return html
+        let tabla = box_html.replace(':tbody:',html)
+
+		return tabla
 
 	}
 
@@ -184,5 +222,263 @@ module.exports = class Asignacion extends modals{
 		return prom
 	}
 		
+	/*---------------------------Obervaciones IRAC e IFA ----------------*/
 
+	validate_insert_observaciones(){
+        
+        let self = this
+
+        $('form#Observaciones-insert').validate({
+            rules:{
+                idVolante:{
+                    required:true,
+                    digits:true
+                },
+                pagina:{
+                    required:true,
+                    maxlength:50
+                },
+                parrafo:{
+                    required:true,
+                    maxlength:50
+                },
+                observacion:{
+                    required:true,
+                    maxlength:350
+                }
+            },
+            messages:{
+                pagina:{
+                    required:'El Campo es Obligatorio',
+                    maxlength:'Maximo 50 caracteres'
+                },
+                parrafo:{
+                    required:'El Campo es Obligatorio',
+                    maxlength:'Maximo 50 caracteres'
+                },
+                observacion:{
+                    required:'El Campo es Obligatorio',
+                    maxlength:'Maximo 50 caracteres'
+                }
+            },
+            submitHandler:function(form){
+
+				let texto = CKEDITOR.instances['ckeditor'].getData()
+				let formulario = $('form#Observaciones-insert')
+				let formData = formulario.serializeArray()
+				let ruta = formulario.data('ruta')
+                formData[3].value=texto
+                self.new_insert_observacion(formData,ruta,formData[0].value)
+            },
+            errorClass:'is-invalid'
+        })
+    }
+
+    async new_insert_observacion(datos,ruta,idVolante){
+        
+        let res = await this.send_data_insert_observaciones(datos,ruta)
+        if(res[0].campo != 'success'){
+            let table = this.construct_table_errors(res)
+            this.errors(table)
+        } else {
+            this.success_observacion(ruta,idVolante)
+        }
+    }
+
+    send_data_insert_observaciones(datos,ruta) {
+        let prom = new Promise(resolve =>{
+            $.post({
+                url:`/SIA/juridico/${ruta}/observaciones/create`,
+                data:datos,
+                success:function(res) {
+                    resolve(JSON.parse(res))
+                }
+            })
+        })
+
+        return prom
+	}
+	
+    validate_update_observaciones(){
+        
+        let self = this
+
+        $('form#Observaciones-update').validate({
+            rules:{
+                idObservacionDoctoJuridico:{
+                    required:true,
+                    digits:true
+                },
+                pagina:{
+                    required:true,
+                    maxlength:50
+                },
+                parrafo:{
+                    required:true,
+                    maxlength:50
+                },
+                observacion:{
+                    required:true,
+                    maxlength:350
+                }
+            },
+            messages:{
+                pagina:{
+                    required:'El Campo es Obligatorio',
+                    maxlength:'Maximo 50 caracteres'
+                },
+                parrafo:{
+                    required:'El Campo es Obligatorio',
+                    maxlength:'Maximo 50 caracteres'
+                },
+                observacion:{
+                    required:'El Campo es Obligatorio',
+                    maxlength:'Maximo 50 caracteres'
+                }
+            },
+            submitHandler:function(form){
+
+				let texto = CKEDITOR.instances['ckeditor'].getData()
+				let formulario = $('form#Observaciones-update')
+				let formData = formulario.serializeArray()
+				let ruta = formulario.data('ruta')
+                formData[4].value=texto
+                let idVolante = $('a#add-btn-observaciones').data('volante')
+                self.new_update_observacion(formData,ruta,idVolante)
+            },
+            errorClass:'is-invalid'
+        })
+    }
+
+    async new_update_observacion(datos,ruta,idVolante){
+        let res = await this.update_observaciones(datos,ruta)
+        if(res[0].campo != 'success'){
+            let table = this.construct_table_errors(res)
+            this.errors(table)
+        } else {
+            this.success_update_observacion(ruta,idVolante)
+        }	
+    }
+
+
+    update_observaciones(datos,ruta){
+        let promesa = new Promise(resolve =>{
+            $.post({
+                url:`/SIA/juridico/${ruta}/observaciones/update`,
+                data:datos,
+                success:function(res){
+                    resolve(JSON.parse(res))
+                }
+            })
+        })
+        return promesa
+    }
+
+
+	/*----------------- Carga modal de boton de firmas en cedulas----------*/
+
+	load_puestos_cedula(){
+
+        let self = this
+        
+        $('button#modalFirmas').click(function(e){
+            e.preventDefault()
+            self.modal_puestos_juridico()
+        })
+
+    }
+
+    async modal_puestos_juridico() {
+        
+        let datos = await this.load_puestos_juridico()
+        let table = this.construct_table_puestos_juridico(datos)
+        this.puestos_juridico(table)
+        
+
+
+    }
+
+    load_puestos_juridico(){
+
+        let promesa = new Promise(resolve =>{
+            $.get({
+                url:`/SIA/juridico/api/puestosJuridico`,
+                success:function(res){
+                    resolve(JSON.parse(res))
+                }
+            })
+        })
+        return promesa
+    }
+
+    construct_table_puestos_juridico(datos){
+
+        let html = require('./../templates/puestos_juridico.html')
+        let tr = ''
+
+        for(let x in datos){
+            tr += `<tr>
+                    <td><input type="checkbox" name="puestos" value="${datos[x].idPuestoJuridico}"></td>
+                    <td>${datos[x].saludo} ${datos[x].nombre} ${datos[x].paterno} ${datos[x].materno} </td>
+                    <td>${datos[x].puesto}</td>
+                </tr>`
+        }
+
+        let table = html.replace(':body:',tr)
+
+        return table
+
+    }
+
+
+    async new_insert_cedula(datos,ruta,idVolante){
+        
+        let res = await this.send_data_insert_cedula(datos,ruta)
+        if(res[0].campo != 'success'){
+            let table = this.construct_table_errors(res)
+            this.errors(table)
+        } else {
+            this.success_cedula(ruta,idVolante)
+        }
+    }
+
+
+    send_data_insert_cedula(datos,ruta) {
+        let prom = new Promise(resolve =>{
+            $.post({
+                url:`/SIA/juridico/${ruta}/cedula/create`,
+                data:datos,
+                success:function(res) {
+                    resolve(JSON.parse(res))
+                }
+            })
+        })
+
+        return prom
+    }
+
+
+    async new_update_cedula(datos,ruta,idVolante){
+        let res = await this.update_data_cedula(datos,ruta)
+        if(res[0].campo != 'success'){
+            let table = this.construct_table_errors(res)
+            this.errors(table)
+        } else {
+            this.success_update(ruta,idVolante)
+        }	
+    }
+
+
+    update_data_cedula(datos,ruta){
+        let promesa = new Promise(resolve =>{
+            $.post({
+                url:`/SIA/juridico/${ruta}/cedula/update`,
+                data:datos,
+                success:function(res){
+                    resolve(JSON.parse(res))
+                }
+            })
+        })
+        return promesa
+    }
 }
